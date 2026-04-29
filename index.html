@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terminal Task Tracker — Interactive Course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --color-bg: #FAF7F2;
+  --color-bg-warm: #F5F0E8;
+  --color-bg-code: #1E1E2E;
+  --color-text: #2C2A28;
+  --color-text-secondary: #6B6560;
+  --color-text-muted: #9E9790;
+  --color-border: #E5DFD6;
+  --color-border-light: #EEEBE5;
+  --color-surface: #FFFFFF;
+  --color-surface-warm: #FDF9F3;
+  --color-accent: #2A7B9B;
+  --color-accent-hover: #1E6080;
+  --color-accent-light: #E4F2F7;
+  --color-accent-muted: #5B9EBA;
+  --color-success: #2D8B55;
+  --color-success-light: #E8F5EE;
+  --color-error: #C93B3B;
+  --color-error-light: #FDE8E8;
+  --color-info: #2A7B9B;
+  --color-info-light: #E4F2F7;
+  --color-actor-1: #2A7B9B;
+  --color-actor-2: #D94F30;
+  --color-actor-3: #7B6DAA;
+  --color-actor-4: #D4A843;
+  --color-actor-5: #2D8B55;
+  --font-display: 'Bricolage Grotesque', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.6;
+  --leading-loose: 1.8;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --content-width: 800px;
+  --content-width-wide: 1000px;
+  --nav-height: 52px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px rgba(44,42,40,0.05);
+  --shadow-md: 0 4px 12px rgba(44,42,40,0.08);
+  --shadow-lg: 0 8px 24px rgba(44,42,40,0.1);
+  --shadow-xl: 0 16px 48px rgba(44,42,40,0.12);
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+  --ease-in-out: cubic-bezier(0.65,0,0.35,1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: var(--leading-normal);
+}
+
+/* NAV */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-height);
+  background: rgba(250,247,242,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  z-index: 100;
+}
+.nav-title {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+.nav-title span { color: var(--color-accent); }
+.nav-dots {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+.nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-border);
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  padding: 0;
+}
+.nav-dot.active {
+  background: var(--color-accent);
+  width: 24px;
+  border-radius: var(--radius-full);
+}
+.nav-dot:hover { background: var(--color-accent-muted); }
+
+/* MODULES */
+.module {
+  min-height: 100dvh;
+  min-height: 100vh;
+  scroll-snap-align: start;
+  padding: var(--space-16) var(--space-6);
+  padding-top: calc(var(--nav-height) + var(--space-12));
+}
+.module:nth-child(even) { background: var(--color-bg); }
+.module:nth-child(odd) { background: var(--color-bg-warm); }
+
+.module-content {
+  max-width: var(--content-width);
+  margin: 0 auto;
+}
+.module-content-wide {
+  max-width: var(--content-width-wide);
+  margin: 0 auto;
+}
+
+.module-number {
+  font-family: var(--font-display);
+  font-size: var(--text-6xl);
+  font-weight: 800;
+  color: var(--color-accent);
+  opacity: 0.15;
+  line-height: 1;
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.03em;
+}
+.module-title {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-4);
+  letter-spacing: -0.02em;
+}
+.module-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+  margin-bottom: var(--space-10);
+  max-width: 600px;
+}
+.screen-heading {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+  margin-top: var(--space-10);
+  letter-spacing: -0.01em;
+}
+.screen-heading:first-child { margin-top: 0; }
+
+p { margin-bottom: var(--space-4); }
+p:last-child { margin-bottom: 0; }
+
+/* ANIMATE IN */
+.animate-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity var(--duration-slow) var(--ease-out),
+              transform var(--duration-slow) var(--ease-out);
+}
+.animate-in.visible { opacity: 1; transform: translateY(0); }
+
+/* TOOLTIPS */
+.term {
+  border-bottom: 2px dashed var(--color-accent-muted);
+  cursor: pointer;
+  color: inherit;
+  transition: color var(--duration-fast);
+}
+.term:hover { color: var(--color-accent); }
+.tooltip-popup {
+  position: fixed;
+  background: var(--color-text);
+  color: white;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  max-width: 280px;
+  z-index: 999;
+  pointer-events: none;
+  box-shadow: var(--shadow-xl);
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+}
+.tooltip-popup.show { opacity: 1; }
+
+/* TRANSLATION BLOCKS */
+.translation-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin: var(--space-8) 0;
+}
+.translation-code {
+  background: var(--color-bg-code);
+  color: #CDD6F4;
+  padding: var(--space-6);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  position: relative;
+  overflow: hidden;
+}
+.translation-code pre, .translation-code code {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: hidden;
+}
+.translation-english {
+  background: var(--color-surface-warm);
+  padding: var(--space-6);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  border-left: 3px solid var(--color-accent);
+  overflow: visible;
+}
+.translation-label {
+  display: block;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+  margin-bottom: var(--space-3);
+  font-family: var(--font-mono);
+}
+.translation-lines p { margin-bottom: var(--space-2); font-size: var(--text-sm); }
+.translation-lines p:last-child { margin-bottom: 0; }
+.code-keyword { color: #CBA6F7; }
+.code-function { color: #89DCEB; }
+.code-string { color: #A6E3A1; }
+.code-comment { color: #585B70; font-style: italic; }
+.code-type { color: #F9E2AF; }
+.code-property { color: #89B4FA; }
+
+@media (max-width: 768px) {
+  .translation-block { grid-template-columns: 1fr; }
+  .translation-english { border-left: none; border-top: 3px solid var(--color-accent); }
+}
+
+/* CALLOUT BOXES */
+.callout {
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-6);
+  margin: var(--space-6) 0;
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+.callout-aha {
+  background: var(--color-accent-light);
+  border-left: 4px solid var(--color-accent);
+}
+.callout-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.callout-body strong {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  display: block;
+  margin-bottom: var(--space-1);
+}
+.callout-body p { font-size: var(--text-sm); margin-bottom: 0; color: var(--color-text-secondary); }
+
+/* CARDS */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+}
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.card-icon {
+  font-size: 1.8rem;
+  margin-bottom: var(--space-3);
+  display: block;
+}
+.card-title {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+}
+.card-desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+}
+
+/* FILE TREE */
+.file-tree {
+  background: var(--color-bg-code);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: #CDD6F4;
+  line-height: 2;
+  margin: var(--space-6) 0;
+  box-shadow: var(--shadow-md);
+}
+.ft-dir { color: var(--color-actor-4); }
+.ft-file { color: #CDD6F4; }
+.ft-badge {
+  display: inline-block;
+  font-size: var(--text-xs);
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  margin-left: var(--space-3);
+  vertical-align: middle;
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.ft-badge-blue { background: rgba(42,123,155,0.25); color: #89B4FA; }
+.ft-badge-green { background: rgba(45,139,85,0.25); color: #A6E3A1; }
+.ft-badge-orange { background: rgba(212,168,67,0.25); color: #F9E2AF; }
+
+/* STEP CARDS */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-6) 0;
+}
+.step-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  box-shadow: var(--shadow-sm);
+}
+.step-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+.step-text strong {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+.step-text span { font-size: var(--text-sm); color: var(--color-text-secondary); }
+
+/* CHAT */
+.chat-window {
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: var(--space-6) 0;
+  box-shadow: var(--shadow-md);
+}
+.chat-messages {
+  padding: var(--space-5);
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.chat-message {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-end;
+}
+.chat-message.right {
+  flex-direction: row-reverse;
+}
+.chat-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  flex-shrink: 0;
+}
+.chat-bubble {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border-bottom-left-radius: 4px;
+  padding: var(--space-3) var(--space-4);
+  max-width: 70%;
+  box-shadow: var(--shadow-sm);
+}
+.chat-message.right .chat-bubble {
+  border-radius: var(--radius-md);
+  border-bottom-right-radius: 4px;
+}
+.chat-sender {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 4px;
+}
+.chat-bubble p { font-size: var(--text-sm); margin: 0; }
+.chat-typing {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: 0 var(--space-5) var(--space-3);
+}
+.chat-typing-dots {
+  display: flex; gap: 4px; align-items: center;
+  background: var(--color-surface);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.typing-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  animation: typingBounce 1.4s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+.chat-controls {
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.chat-progress {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  margin-left: auto;
+}
+
+/* FLOW ANIMATION */
+.flow-animation {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin: var(--space-6) 0;
+  box-shadow: var(--shadow-md);
+}
+.flow-actors {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  position: relative;
+}
+.flow-actors::after {
+  content: '';
+  position: absolute;
+  top: 36px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: var(--color-border);
+  z-index: 0;
+}
+.flow-actor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  position: relative;
+  z-index: 1;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+.flow-actor-icon {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-warm);
+  border: 2px solid var(--color-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+.flow-actor span {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+.flow-actor.active .flow-actor-icon {
+  box-shadow: 0 0 0 3px var(--color-accent), 0 0 20px rgba(42,123,155,0.2);
+  border-color: var(--color-accent);
+  transform: scale(1.05);
+}
+.flow-actor.active span { color: var(--color-accent); font-weight: 700; }
+.flow-packet {
+  height: 28px;
+  display: none;
+  position: relative;
+  margin-bottom: var(--space-4);
+}
+.flow-packet-dot {
+  position: absolute;
+  width: 28px; height: 28px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  box-shadow: var(--shadow-md);
+  transition: left 0.8s var(--ease-out);
+}
+.flow-step-label {
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-style: italic;
+  min-height: 24px;
+  margin-bottom: var(--space-4);
+}
+.flow-controls {
+  display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap;
+}
+.flow-progress {
+  font-size: var(--text-xs); color: var(--color-text-muted);
+  font-family: var(--font-mono); margin-left: auto;
+}
+
+/* BUTTONS */
+.btn {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-accent);
+  background: var(--color-accent);
+  color: white;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+.btn:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
+.btn-ghost {
+  background: transparent;
+  color: var(--color-accent);
+}
+.btn-ghost:hover { background: var(--color-accent-light); }
+
+/* QUIZ */
+.quiz-container {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin: var(--space-6) 0;
+  box-shadow: var(--shadow-md);
+}
+.quiz-q-label {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+  margin-bottom: var(--space-2);
+  display: block;
+}
+.quiz-question {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  margin-bottom: var(--space-5);
+  line-height: var(--leading-snug);
+}
+.quiz-options { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
+.quiz-option {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  cursor: pointer; width: 100%;
+  transition: border-color var(--duration-fast), background var(--duration-fast);
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+}
+.quiz-option:hover { border-color: var(--color-accent-muted); background: var(--color-accent-light); }
+.quiz-option.selected { border-color: var(--color-accent); background: var(--color-accent-light); }
+.quiz-option.correct { border-color: var(--color-success); background: var(--color-success-light); }
+.quiz-option.incorrect { border-color: var(--color-error); background: var(--color-error-light); }
+.quiz-option-radio {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--color-border);
+  flex-shrink: 0;
+  transition: all var(--duration-fast);
+}
+.quiz-option.selected .quiz-option-radio {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  box-shadow: inset 0 0 0 3px white;
+}
+.quiz-option.correct .quiz-option-radio { border-color: var(--color-success); background: var(--color-success); box-shadow: inset 0 0 0 3px white; }
+.quiz-option.incorrect .quiz-option-radio { border-color: var(--color-error); background: var(--color-error); box-shadow: inset 0 0 0 3px white; }
+.quiz-feedback {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height var(--duration-normal), opacity var(--duration-normal);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+.quiz-feedback.show { max-height: 200px; opacity: 1; padding: var(--space-3); margin-top: var(--space-2); }
+.quiz-feedback.success { background: var(--color-success-light); color: var(--color-success); }
+.quiz-feedback.error { background: var(--color-error-light); color: var(--color-error); }
+.quiz-question-block { margin-bottom: var(--space-6); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border-light); }
+.quiz-question-block:last-of-type { border-bottom: none; }
+.quiz-actions { display: flex; gap: var(--space-3); margin-top: var(--space-4); }
+
+/* ARCH DIAGRAM */
+.arch-diagram {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin: var(--space-6) 0;
+  box-shadow: var(--shadow-md);
+}
+.arch-row {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+.arch-box {
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  flex: 1;
+  min-width: 120px;
+  max-width: 180px;
+  border: 2px solid transparent;
+  position: relative;
+}
+.arch-box:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.arch-box-icon { font-size: 1.5rem; display: block; margin-bottom: var(--space-2); }
+.arch-box-name { font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.05em; }
+.arch-arrow {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 1.2rem;
+  margin-bottom: var(--space-2);
+}
+.arch-desc {
+  background: var(--color-accent-light);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  font-size: var(--text-sm);
+  margin-top: var(--space-4);
+  display: none;
+  color: var(--color-text);
+}
+.arch-desc.show { display: block; }
+.arch-desc strong { color: var(--color-accent); font-family: var(--font-display); }
+
+/* HERO TERMINAL */
+.terminal-hero {
+  background: var(--color-bg-code);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: #CDD6F4;
+  margin: var(--space-8) 0;
+  box-shadow: var(--shadow-xl);
+  line-height: 1.8;
+}
+.terminal-bar {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+.terminal-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+}
+.terminal-dot.red { background: #FF5F57; }
+.terminal-dot.yellow { background: #FFBD2E; }
+.terminal-dot.green { background: #28C840; }
+.terminal-prompt { color: var(--color-actor-4); }
+.terminal-cmd { color: #CDD6F4; }
+.terminal-output { color: #A6E3A1; }
+.terminal-comment { color: #585B70; font-style: italic; }
+
+/* BADGE ROW */
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: var(--space-6) 0;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.badge-blue { background: var(--color-accent-light); color: var(--color-accent); border-color: rgba(42,123,155,0.3); }
+.badge-green { background: var(--color-success-light); color: var(--color-success); border-color: rgba(45,139,85,0.3); }
+.badge-orange { background: #FDF3E3; color: #C27C10; border-color: rgba(212,168,67,0.4); }
+.badge-plum { background: #F2EFF9; color: var(--color-actor-3); border-color: rgba(123,109,170,0.3); }
+
+/* DIVIDER */
+.divider {
+  border: none;
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-10) 0;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent-muted); }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .module-title { font-size: var(--text-3xl); }
+  .module-number { font-size: 3rem; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .flow-actors { gap: var(--space-2); }
+  .flow-actor-icon { width: 44px; height: 44px; font-size: 1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <span class="nav-title">Terminal <span>Task</span> Tracker</span>
+  <div class="nav-dots" id="navDots">
+    <button class="nav-dot active" onclick="scrollToModule(0)" title="What does it do?"></button>
+    <button class="nav-dot" onclick="scrollToModule(1)" title="Meet the Actors"></button>
+    <button class="nav-dot" onclick="scrollToModule(2)" title="How a Command Works"></button>
+    <button class="nav-dot" onclick="scrollToModule(3)" title="The Store"></button>
+    <button class="nav-dot" onclick="scrollToModule(4)" title="Putting It All Together"></button>
+  </div>
+</nav>
+
+<!-- ===== MODULE 1: WHAT DOES IT DO? ===== -->
+<section class="module" id="module-1">
+  <div class="module-content">
+    <div class="module-number">01</div>
+    <h1 class="module-title">A to-do list that lives in your terminal</h1>
+    <p class="module-subtitle">You type a command. Your task is saved. Let's trace exactly what happens in between.</p>
+
+    <div class="terminal-hero animate-in">
+      <div class="terminal-bar">
+        <div class="terminal-dot red"></div>
+        <div class="terminal-dot yellow"></div>
+        <div class="terminal-dot green"></div>
+      </div>
+      <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">tasks add "Ship the new landing page"</span></div>
+      <div class="terminal-output">Added task 1</div>
+      <br>
+      <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">tasks add "Write release notes"</span></div>
+      <div class="terminal-output">Added task 2</div>
+      <br>
+      <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">tasks ls</span></div>
+      <div class="terminal-output">ID    Task                        Created</div>
+      <div class="terminal-output">1     Ship the new landing page    a few seconds ago</div>
+      <div class="terminal-output">2     Write release notes          a few seconds ago</div>
+      <br>
+      <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">tasks done 1</span></div>
+      <div class="terminal-output">Marked task 1 as done</div>
+    </div>
+
+    <h2 class="screen-heading animate-in">Four commands. That's the whole app.</h2>
+    <div class="cards-grid animate-in">
+      <div class="card">
+        <span class="card-icon">➕</span>
+        <div class="card-title"><code>tasks add</code></div>
+        <div class="card-desc">Create a new task with a description. The app assigns it a unique ID automatically.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">📋</span>
+        <div class="card-title"><code>tasks list</code> / <code>ls</code></div>
+        <div class="card-desc">Show your open tasks. Add <code>--all</code> to see completed ones too.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">✅</span>
+        <div class="card-title"><code>tasks done</code></div>
+        <div class="card-desc">Mark a task complete by its ID. It stays in the file but gets filtered out of the default list.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">🗑️</span>
+        <div class="card-title"><code>tasks delete</code></div>
+        <div class="card-desc">Permanently remove a task from the file. IDs are never reused.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-aha animate-in">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>The terminal is just a different kind of UI</strong>
+        <p>There's no button to click — you type a command instead. Under the hood, it works the same way a web app does: you send input, the app processes it, and you get output. The difference is text in, text out.</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading animate-in">What's happening when you type that command?</h2>
+    <p class="animate-in">Let's trace <span class="term" data-tip="A step-by-step path through code — following data from input to output, like a detective following footprints.">end-to-end</span> what happens the moment you hit Enter on <code>tasks add "Ship the landing page"</code>:</p>
+    <div class="steps animate-in">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Your shell finds the <code>tasks</code> binary</strong><span>The operating system looks on your PATH for an executable called "tasks" — the compiled Go program.</span></div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong><code>main.go</code> starts and hands off to <span class="term" data-tip="Cobra is a popular Go library for building CLI tools. It handles parsing command names, flags, and arguments automatically.">Cobra</span></strong><span>The entry point calls cmd.Execute(), which kicks off the command-routing engine.</span></div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Cobra matches "add" and runs its handler</strong><span>The handler in cmd/add.go gets the description "Ship the landing page" as its argument.</span></div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>The <span class="term" data-tip="The Store is the part of the code responsible for reading and writing tasks. It's like a librarian who manages the filing cabinet.">Store</span> opens, locks the file, adds the task</strong><span>internal/store/store.go reads the CSV file, appends the new task, and writes it back.</span></div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">5</div>
+        <div class="step-text"><strong>"Added task 1" prints to your screen</strong><span>The handler prints the new task ID to stdout and the Store closes (releasing the file lock).</span></div>
+      </div>
+    </div>
+
+    <div class="callout callout-aha animate-in">
+      <span class="callout-icon">🎯</span>
+      <div class="callout-body">
+        <strong>Why this matters for directing AI</strong>
+        <p>When you ask AI to "add a priority field to tasks," it needs to touch the Store (where tasks are defined and saved) AND the list command (which displays them). Knowing the flow helps you give better instructions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODULE 2: MEET THE ACTORS ===== -->
+<section class="module" id="module-2">
+  <div class="module-content">
+    <div class="module-number">02</div>
+    <h1 class="module-title">Meet the cast</h1>
+    <p class="module-subtitle">Every codebase is a story with characters. Here are the four main players in this one.</p>
+
+    <div class="callout callout-aha animate-in">
+      <span class="callout-icon">🎭</span>
+      <div class="callout-body">
+        <strong>Think of it like a small crew on a film set</strong>
+        <p>There's a director (main.go), a routing coordinator (Cobra), specialists who handle each scene (cmd/ files), and a prop master who manages all the physical items (the Store). Everyone knows their job and stays out of each other's way.</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading animate-in">The file structure</h2>
+    <div class="file-tree animate-in">
+      <div>📁 <span class="ft-dir">Terminal-Task-Tracker/</span></div>
+      <div>&nbsp;&nbsp;📄 <span class="ft-file">main.go</span> <span class="ft-badge ft-badge-blue">Entry Point</span></div>
+      <div>&nbsp;&nbsp;📄 <span class="ft-file">go.mod</span> <span class="ft-badge ft-badge-orange">Dependencies</span></div>
+      <div>&nbsp;&nbsp;📁 <span class="ft-dir">cmd/</span> <span class="ft-badge ft-badge-green">Command Handlers</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;📄 <span class="ft-file">root.go</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;📄 <span class="ft-file">add.go</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;📄 <span class="ft-file">list.go</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;📄 <span class="ft-file">done.go</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;📄 <span class="ft-file">delete.go</span></div>
+      <div>&nbsp;&nbsp;📁 <span class="ft-dir">internal/store/</span> <span class="ft-badge ft-badge-orange">Data Layer</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;📄 <span class="ft-file">store.go</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;📄 <span class="ft-file">lock.go</span></div>
+    </div>
+
+    <h2 class="screen-heading animate-in">Click each actor to learn their role</h2>
+    <div class="arch-diagram animate-in" id="archDiagram">
+      <div class="arch-row">
+        <div class="arch-box" style="background:#E4F2F7;border-color:#2A7B9B;" onclick="showArchDesc('main')">
+          <span class="arch-box-icon">🚪</span>
+          <div class="arch-box-name" style="color:#2A7B9B;">main.go</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-row">
+        <div class="arch-box" style="background:#FDF3E3;border-color:#D4A843;" onclick="showArchDesc('cobra')">
+          <span class="arch-box-icon">🔀</span>
+          <div class="arch-box-name" style="color:#C27C10;">Cobra Router</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-row">
+        <div class="arch-box" style="background:#E8F5EE;border-color:#2D8B55;" onclick="showArchDesc('add')">
+          <span class="arch-box-icon">➕</span>
+          <div class="arch-box-name" style="color:#2D8B55;">add.go</div>
+        </div>
+        <div class="arch-box" style="background:#E8F5EE;border-color:#2D8B55;" onclick="showArchDesc('list')">
+          <span class="arch-box-icon">📋</span>
+          <div class="arch-box-name" style="color:#2D8B55;">list.go</div>
+        </div>
+        <div class="arch-box" style="background:#E8F5EE;border-color:#2D8B55;" onclick="showArchDesc('done')">
+          <span class="arch-box-icon">✅</span>
+          <div class="arch-box-name" style="color:#2D8B55;">done.go</div>
+        </div>
+        <div class="arch-box" style="background:#E8F5EE;border-color:#2D8B55;" onclick="showArchDesc('delete')">
+          <span class="arch-box-icon">🗑️</span>
+          <div class="arch-box-name" style="color:#2D8B55;">delete.go</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-row">
+        <div class="arch-box" style="background:#FDEEE9;border-color:#D94F30;" onclick="showArchDesc('store')">
+          <span class="arch-box-icon">🗄️</span>
+          <div class="arch-box-name" style="color:#D94F30;">store.go</div>
+        </div>
+        <div class="arch-box" style="background:#FDEEE9;border-color:#D94F30;" onclick="showArchDesc('lock')">
+          <span class="arch-box-icon">🔒</span>
+          <div class="arch-box-name" style="color:#D94F30;">lock.go</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-row">
+        <div class="arch-box" style="background:#F2EFF9;border-color:#7B6DAA;" onclick="showArchDesc('csv')">
+          <span class="arch-box-icon">📊</span>
+          <div class="arch-box-name" style="color:#7B6DAA;">~/.tasks.csv</div>
+        </div>
+      </div>
+      <div class="arch-desc" id="arch-desc-main"><strong>main.go — The Front Door</strong><br>Just 5 lines. Its only job is to call cmd.Execute() which hands everything off to Cobra. Think of it as the on/off switch for the whole app.</div>
+      <div class="arch-desc" id="arch-desc-cobra"><strong>Cobra Router — The Traffic Controller</strong><br>Cobra is an external library (like a plug-in) that reads what you typed — "tasks add", "tasks list", etc. — and routes it to the right handler. You never write this routing logic yourself; Cobra handles it.</div>
+      <div class="arch-desc" id="arch-desc-add"><strong>add.go — The "Add" Specialist</strong><br>When you type "tasks add ...", this file runs. It calls openStore(), then Store.Add(), and prints the new task ID. One file, one command, one responsibility.</div>
+      <div class="arch-desc" id="arch-desc-list"><strong>list.go — The "List" Specialist</strong><br>Handles "tasks list" and "tasks ls". It also manages the --all flag. Uses a tabwriter to make the output line up in neat columns.</div>
+      <div class="arch-desc" id="arch-desc-done"><strong>done.go — The "Mark Complete" Specialist</strong><br>Converts your text ID ("2") to a number, then calls Store.Complete(). Handles the error if that ID doesn't exist.</div>
+      <div class="arch-desc" id="arch-desc-delete"><strong>delete.go — The "Delete" Specialist</strong><br>Same pattern as done.go — parse the ID, call Store.Delete(). If the task is not found, the user gets a clear error message.</div>
+      <div class="arch-desc" id="arch-desc-store"><strong>store.go — The Filing Cabinet Manager</strong><br>The heart of the data layer. Loads tasks from CSV into memory, exposes Add/Complete/Delete/List methods, and writes changes back on Close(). All business logic about tasks lives here.</div>
+      <div class="arch-desc" id="arch-desc-lock"><strong>lock.go — The Gatekeeper</strong><br>Opens the CSV file and immediately places an exclusive lock on it (flock). No other process can write to the file until this one is done. Prevents data corruption if two terminals run tasks at the same time.</div>
+      <div class="arch-desc" id="arch-desc-csv"><strong>~/.tasks.csv — The Source of Truth</strong><br>A plain text file on your computer. Four columns: ID, Description, CreatedAt, IsComplete. Every command reads from and/or writes to this single file.</div>
+    </div>
+
+    <h2 class="screen-heading animate-in">The key architectural pattern: one job each</h2>
+    <p class="animate-in">Notice how each <span class="term" data-tip="A file in a codebase that groups related code together — like a chapter in a book. In Go, files belong to a 'package' which is a namespace for that code.">file</span> does exactly one thing. This is called the <span class="term" data-tip="Single Responsibility Principle — a design rule that says each part of code should have exactly one reason to change. Makes code easier to understand and modify.">Single Responsibility Principle</span>. When you ask AI to add a feature, you can be precise: "update only the Store" or "add a new command file in cmd/".</p>
+
+    <!-- GROUP CHAT ANIMATION -->
+    <h2 class="screen-heading animate-in">How they talk to each other</h2>
+    <div class="chat-window animate-in" id="chat-module2">
+      <div class="chat-messages" id="chat-module2-messages">
+        <div class="chat-message" data-msg="0" style="display:none">
+          <div class="chat-avatar" style="background:var(--color-actor-3)">You</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color:var(--color-actor-3)">Terminal</span>
+            <p>$ tasks done 2</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="1" style="display:none">
+          <div class="chat-avatar" style="background:var(--color-actor-4)">C</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color:#C27C10">Cobra</span>
+            <p>Got it — "done" command with argument "2". Routing to done.go...</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="2" style="display:none">
+          <div class="chat-avatar" style="background:var(--color-actor-5)">D</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color:var(--color-actor-5)">done.go</span>
+            <p>Converting "2" to integer... done. Asking root to open the Store.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="3" style="display:none">
+          <div class="chat-avatar" style="background:var(--color-actor-2)">R</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color:var(--color-actor-2)">root.go</span>
+            <p>Opening ~/.tasks.csv and locking it. Here's your Store object.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="4" style="display:none">
+          <div class="chat-avatar" style="background:var(--color-actor-2)">S</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color:var(--color-actor-2)">Store</span>
+            <p>Found task 2. Marking IsComplete = true. Setting dirty flag so I know to save on close.</p>
+          </div>
+        </div>
+        <div class="chat-message" data-msg="5" style="display:none">
+          <div class="chat-avatar" style="background:var(--color-actor-5)">D</div>
+          <div class="chat-bubble">
+            <span class="chat-sender" style="color:var(--color-actor-5)">done.go</span>
+            <p>Store.Close() — saves to disk, releases lock. Printing "Marked task 2 as done" to stdout.</p>
+          </div>
+        </div>
+      </div>
+      <div class="chat-typing" id="chat-module2-typing" style="display:none">
+        <div class="chat-avatar" id="chat-module2-typing-avatar" style="background:var(--color-accent)">...</div>
+        <div class="chat-typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+      <div class="chat-controls">
+        <button class="btn chat-next-btn" onclick="chatNext('chat-module2')">Next Message</button>
+        <button class="btn btn-ghost chat-all-btn" onclick="chatAll('chat-module2')">Play All</button>
+        <button class="btn btn-ghost chat-reset-btn" onclick="chatReset('chat-module2')">Replay</button>
+        <span class="chat-progress" id="chat-module2-progress">0 / 6</span>
+      </div>
+    </div>
+
+    <!-- QUIZ MODULE 2 -->
+    <div class="quiz-container animate-in" id="quiz-m2">
+      <div class="quiz-question-block"
+           data-correct="opt-store"
+           data-explanation-right="Exactly! The Store is the data layer — all task data lives there. Changing what a task looks like means updating the Task struct and the CSV read/write logic in store.go."
+           data-explanation-wrong="Not quite. Think about where tasks are actually stored and what defines their shape. The cmd/ files are the interface — but the data structure lives deeper.">
+        <span class="quiz-q-label">Quiz — Module 2</span>
+        <h3 class="quiz-question">You want to add a "priority" field (high/medium/low) to every task. Which part of the codebase would you need to change first?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="opt-main" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>main.go — the entry point</span>
+          </button>
+          <button class="quiz-option" data-value="opt-cobra" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Cobra's routing logic</span>
+          </button>
+          <button class="quiz-option" data-value="opt-store" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>internal/store/store.go — the Task struct and CSV logic</span>
+          </button>
+          <button class="quiz-option" data-value="opt-lock" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>internal/store/lock.go — the file locking</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+      <div class="quiz-actions">
+        <button class="btn" onclick="checkQuiz('quiz-m2')">Check Answer</button>
+        <button class="btn btn-ghost" onclick="resetQuiz('quiz-m2')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODULE 3: HOW A COMMAND WORKS ===== -->
+<section class="module" id="module-3">
+  <div class="module-content">
+    <div class="module-number">03</div>
+    <h1 class="module-title">How a command actually works</h1>
+    <p class="module-subtitle">Let's read real code together. Side-by-side, line by line — no CS degree needed.</p>
+
+    <div class="callout callout-aha animate-in">
+      <span class="callout-icon">📬</span>
+      <div class="callout-body">
+        <strong>Think of Cobra commands like postal forms</strong>
+        <p>You fill in the "Use" field (the command name), the "Short" field (the label on the envelope), and the "RunE" field (the instructions for what to do when this form arrives). Cobra is the postal service — it reads the form and executes the instructions.</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading animate-in">The "add" command, decoded</h2>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE — cmd/add.go</span>
+        <pre><code><span class="code-keyword">var</span> addCmd = &cobra.Command{
+    Use:   <span class="code-string">"add &lt;description&gt;"</span>,
+    Short: <span class="code-string">"Add a new task"</span>,
+    Args:  cobra.ExactArgs(1),
+    RunE: <span class="code-keyword">func</span>(cmd *cobra.Command, args []<span class="code-type">string</span>) <span class="code-type">error</span> {
+        s, err := <span class="code-function">openStore</span>()
+        <span class="code-keyword">if</span> err != <span class="code-keyword">nil</span> {
+            <span class="code-keyword">return</span> err
+        }
+        <span class="code-keyword">defer</span> s.<span class="code-function">Close</span>()
+        t := s.<span class="code-function">Add</span>(args[0])
+        fmt.<span class="code-function">Fprintf</span>(cmd.<span class="code-function">OutOrStdout</span>(), <span class="code-string">"Added task %d\n"</span>, t.ID)
+        <span class="code-keyword">return</span> <span class="code-keyword">nil</span>
+    },
+}</code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p>Create a new command object and store it in addCmd.</p>
+          <p>When someone types "tasks add ..." this is the command name pattern to match.</p>
+          <p>A one-line description shown in the help menu.</p>
+          <p>Require <em>exactly</em> one argument — the task description. Error out if they provide zero or two.</p>
+          <p>RunE is the function that actually runs. It receives the typed arguments as a list of strings.</p>
+          <p>Open the CSV file (and lock it). Store the result in "s".</p>
+          <p>If something went wrong opening the file, stop here and report the error.</p>
+          <p>Close parenthesis of the error check.</p>
+          <p>"defer" means: run s.Close() when this function exits, no matter what. Saves and unlocks the file.</p>
+          <p>Add the task (args[0] = the first argument you typed). Get back the new task object "t".</p>
+          <p>Print "Added task 1" (or whatever ID) to the terminal output.</p>
+          <p>Return nil = no error, everything worked.</p>
+          <p>End of the function and the command definition.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-aha animate-in">
+      <span class="callout-icon">⏩</span>
+      <div class="callout-body">
+        <strong>"defer" is a safety net</strong>
+        <p><span class="term" data-tip="In Go, 'defer' schedules a function to run right before the current function returns — no matter how or why it returns. Great for cleanup tasks like closing files.">defer</span> s.Close() means "close and save the file when this function finishes — even if there's an error." Without it, you'd have to remember to close the file in every possible exit path. Defer handles it automatically. You can tell AI: "use defer for any cleanup at the end of a function."</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading animate-in">How root.go shares setup code</h2>
+    <p class="animate-in">Every command needs to open the Store. Instead of repeating that code five times, <code>root.go</code> defines a shared helper called <code>openStore()</code> that all commands can call.</p>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE — cmd/root.go (excerpt)</span>
+        <pre><code><span class="code-keyword">func</span> <span class="code-function">resolveFile</span>() (<span class="code-type">string</span>, <span class="code-type">error</span>) {
+    <span class="code-keyword">if</span> dataFile != <span class="code-string">""</span> {
+        <span class="code-keyword">return</span> dataFile, <span class="code-keyword">nil</span>
+    }
+    <span class="code-keyword">if</span> env := os.<span class="code-function">Getenv</span>(<span class="code-string">"TASKS_FILE"</span>); env != <span class="code-string">""</span> {
+        <span class="code-keyword">return</span> env, <span class="code-keyword">nil</span>
+    }
+    home, err := os.<span class="code-function">UserHomeDir</span>()
+    <span class="code-keyword">if</span> err != <span class="code-keyword">nil</span> {
+        <span class="code-keyword">return</span> <span class="code-string">""</span>, fmt.<span class="code-function">Errorf</span>(<span class="code-string">"resolve home dir: %w"</span>, err)
+    }
+    <span class="code-keyword">return</span> filepath.<span class="code-function">Join</span>(home, <span class="code-string">".tasks.csv"</span>), <span class="code-keyword">nil</span>
+}</code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p>Function that figures out where the tasks file lives. Returns a file path or an error.</p>
+          <p>If the user passed --file /some/path.csv, use that path.</p>
+          <p>Return that path (second value "nil" = no error).</p>
+          <p>End of that check.</p>
+          <p>Otherwise, check the TASKS_FILE environment variable. If it's set, use that.</p>
+          <p>Return the env variable path.</p>
+          <p>End of that check.</p>
+          <p>Otherwise, find the user's home directory (e.g. /Users/yourname).</p>
+          <p>If we can't find it, return an error message.</p>
+          <p>End of error check.</p>
+          <p>Default: use ~/.tasks.csv (join home + ".tasks.csv").</p>
+          <p>End of function.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="screen-heading animate-in">The command flow, visualized</h2>
+    <!-- FLOW ANIMATION -->
+    <div class="flow-animation animate-in" data-steps='[{"highlight":"flow-actor-1","label":"You type: tasks add \"Fix the bug\""},{"highlight":"flow-actor-2","label":"Cobra reads the word \"add\" and finds addCmd"},{"highlight":"flow-actor-3","label":"root.go resolveFile() picks the CSV path"},{"highlight":"flow-actor-4","label":"lock.go opens ~/.tasks.csv and locks it exclusively"},{"highlight":"flow-actor-4","label":"store.go reads all rows from CSV into memory"},{"highlight":"flow-actor-3","label":"Store.Add() creates a new task, sets dirty = true"},{"highlight":"flow-actor-4","label":"defer Close() saves tasks back to CSV and unlocks"},{"highlight":"flow-actor-1","label":"\"Added task 3\" prints to your terminal"}]' id="flow-m3">
+      <div class="flow-actors">
+        <div class="flow-actor" id="flow-actor-1">
+          <div class="flow-actor-icon">⌨️</div>
+          <span>Terminal</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-2">
+          <div class="flow-actor-icon">🔀</div>
+          <span>Cobra</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-3">
+          <div class="flow-actor-icon">📂</div>
+          <span>root.go</span>
+        </div>
+        <div class="flow-actor" id="flow-actor-4">
+          <div class="flow-actor-icon">🗄️</div>
+          <span>Store</span>
+        </div>
+      </div>
+      <div class="flow-packet" id="flow-m3-packet"></div>
+      <div class="flow-step-label" id="flow-m3-label">Click "Next Step" to trace the flow</div>
+      <div class="flow-controls">
+        <button class="btn flow-next-btn" onclick="flowNext('flow-m3')">Next Step</button>
+        <button class="btn btn-ghost flow-reset-btn" onclick="flowReset('flow-m3')">Restart</button>
+        <span class="flow-progress" id="flow-m3-progress">0 / 8</span>
+      </div>
+    </div>
+
+    <!-- QUIZ MODULE 3 -->
+    <div class="quiz-container animate-in" id="quiz-m3">
+      <div class="quiz-question-block"
+           data-correct="opt-defer"
+           data-explanation-right="Exactly! defer s.Close() is a safety net — it runs no matter what happens inside the function, even if there is an error midway. Without it, you would risk leaving the file locked and unsaved."
+           data-explanation-wrong="Not quite. Think about what happens if there is an error midway through the command. How does the file get saved and unlocked in that case?">
+        <span class="quiz-q-label">Quiz — Module 3</span>
+        <h3 class="quiz-question">A user reports that after a crash, their ~/.tasks.csv file is locked and nobody can access it. Where in the code would you look to make sure the file always gets unlocked, even when errors happen?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="opt-cobra" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Cobra's command routing — maybe it is not calling the handler correctly</span>
+          </button>
+          <button class="quiz-option" data-value="opt-defer" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The "defer s.Close()" line in each command handler</span>
+          </button>
+          <button class="quiz-option" data-value="opt-add" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The s.Add() call inside add.go</span>
+          </button>
+          <button class="quiz-option" data-value="opt-csv" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The CSV file format itself — it might be corrupted</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+      <div class="quiz-actions">
+        <button class="btn" onclick="checkQuiz('quiz-m3')">Check Answer</button>
+        <button class="btn btn-ghost" onclick="resetQuiz('quiz-m3')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODULE 4: THE STORE ===== -->
+<section class="module" id="module-4">
+  <div class="module-content">
+    <div class="module-number">04</div>
+    <h1 class="module-title">The Store: your trusty filing cabinet</h1>
+    <p class="module-subtitle">All task data lives here. This is the most important file in the codebase.</p>
+
+    <div class="callout callout-aha animate-in">
+      <span class="callout-icon">🗂️</span>
+      <div class="callout-body">
+        <strong>Think of it like a physical filing cabinet with a lock</strong>
+        <p>When you open the Store, you grab the cabinet key (flock) and pull all the folders into your arms (load into memory). You make changes in your arms. When you're done, you put everything back in the drawer exactly as arranged (save to CSV), then return the key (unlock). Nobody else can open the drawer while you have the key.</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading animate-in">The Task — the blueprint for a single task</h2>
+
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE — internal/store/store.go</span>
+        <pre><code><span class="code-keyword">type</span> <span class="code-type">Task</span> <span class="code-keyword">struct</span> {
+    ID          <span class="code-type">int</span>
+    Description <span class="code-type">string</span>
+    CreatedAt   time.<span class="code-type">Time</span>
+    IsComplete  <span class="code-type">bool</span>
+}</code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p>Define a blueprint (called a <span class="term" data-tip="A struct is a blueprint that defines what fields a thing has — like a form with labeled boxes. In Go, it is used to group related data together.">struct</span>) named Task.</p>
+          <p>Every task has an ID — a whole number (1, 2, 3...).</p>
+          <p>A description — any text, like "Ship the landing page".</p>
+          <p>A timestamp for when it was created, in full date+time format.</p>
+          <p>A true/false flag: has this task been marked done?</p>
+          <p>End of the blueprint.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="screen-heading animate-in">How tasks are saved: the CSV format</h2>
+    <div class="terminal-hero animate-in" style="font-size:var(--text-xs);">
+      <div class="terminal-bar">
+        <div class="terminal-dot red"></div>
+        <div class="terminal-dot yellow"></div>
+        <div class="terminal-dot green"></div>
+      </div>
+      <div style="color:#CBA6F7;margin-bottom:var(--space-2);"># ~/.tasks.csv</div>
+      <div style="color:#F9E2AF;">ID,Description,CreatedAt,IsComplete</div>
+      <div>1,Ship the new landing page,2024-07-27T16:45:19-05:00,true</div>
+      <div>2,Write release notes,2024-07-27T16:45:26-05:00,false</div>
+      <div>3,Review open-source PR,2024-07-27T16:45:31-05:00,false</div>
+    </div>
+
+    <div class="badge-row animate-in">
+      <span class="badge badge-blue">📄 Plain text file</span>
+      <span class="badge badge-green">✅ Human readable</span>
+      <span class="badge badge-orange">🔑 RFC3339 timestamps</span>
+      <span class="badge badge-plum">🔒 flock protected</span>
+    </div>
+
+    <p class="animate-in"><span class="term" data-tip="CSV stands for Comma-Separated Values. It is a simple plain-text file format where each row is a record and commas separate the fields. Spreadsheet apps like Excel can open CSV files.">CSV</span> is just a text file with commas. No database needed. You can open <code>~/.tasks.csv</code> in any text editor or spreadsheet app and see all your tasks.</p>
+
+    <h2 class="screen-heading animate-in">The file lock — why it exists</h2>
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE — internal/store/lock.go</span>
+        <pre><code><span class="code-keyword">func</span> <span class="code-function">loadFile</span>(path <span class="code-type">string</span>) (*os.<span class="code-type">File</span>, <span class="code-type">error</span>) {
+    f, err := os.<span class="code-function">OpenFile</span>(path,
+        os.O_RDWR|os.O_CREATE, os.ModePerm)
+    <span class="code-keyword">if</span> err != <span class="code-keyword">nil</span> {
+        <span class="code-keyword">return</span> <span class="code-keyword">nil</span>, fmt.<span class="code-function">Errorf</span>(<span class="code-string">"open %s: %w"</span>, path, err)
+    }
+    <span class="code-keyword">if</span> err := syscall.<span class="code-function">Flock</span>(<span class="code-type">int</span>(f.<span class="code-function">Fd</span>()),
+        syscall.LOCK_EX); err != <span class="code-keyword">nil</span> {
+        _ = f.<span class="code-function">Close</span>()
+        <span class="code-keyword">return</span> <span class="code-keyword">nil</span>, fmt.<span class="code-function">Errorf</span>(<span class="code-string">"lock %s: %w"</span>, path, err)
+    }
+    <span class="code-keyword">return</span> f, <span class="code-keyword">nil</span>
+}</code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p>Function: open the tasks file. Takes a path string, returns a file handle or an error.</p>
+          <p>Open the file at that path. O_RDWR = read+write access. O_CREATE = create if it does not exist.</p>
+          <p>&nbsp;</p>
+          <p>If we could not open it (wrong permissions?), return an error with the file path for context.</p>
+          <p>&nbsp;</p>
+          <p>Now grab an exclusive lock on the file. LOCK_EX means: nobody else can read or write until we unlock. This is like putting a "DO NOT DISTURB" sign on the file.</p>
+          <p>&nbsp;</p>
+          <p>If locking failed, close the file we just opened (clean up) and return an error.</p>
+          <p>&nbsp;</p>
+          <p>&nbsp;</p>
+          <p>All good — return the locked file handle to the caller.</p>
+          <p>End of function.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-aha animate-in">
+      <span class="callout-icon">🔒</span>
+      <div class="callout-body">
+        <strong>flock prevents data corruption</strong>
+        <p>Imagine two terminal windows both running <code>tasks add</code> at the same moment. Without a lock, both would read the file, both add a task, and both write — one overwriting the other. <span class="term" data-tip="flock is a Unix system call that places an advisory lock on a file. LOCK_EX means exclusive — only one process can hold this lock at a time. Other processes that try to lock it will wait.">flock</span> makes the second process wait until the first is done. Same pattern you would use with any shared resource in AI-built apps.</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading animate-in">How Add() works — the dirty flag pattern</h2>
+    <div class="translation-block animate-in">
+      <div class="translation-code">
+        <span class="translation-label">CODE — internal/store/store.go</span>
+        <pre><code><span class="code-keyword">func</span> (s *<span class="code-type">Store</span>) <span class="code-function">Add</span>(description <span class="code-type">string</span>) <span class="code-type">Task</span> {
+    id := 1
+    <span class="code-keyword">for</span> _, t := <span class="code-keyword">range</span> s.tasks {
+        <span class="code-keyword">if</span> t.ID >= id {
+            id = t.ID + 1
+        }
+    }
+    t := <span class="code-type">Task</span>{
+        ID:          id,
+        Description: description,
+        CreatedAt:   time.<span class="code-function">Now</span>(),
+        IsComplete:  false,
+    }
+    s.tasks = <span class="code-function">append</span>(s.tasks, t)
+    s.dirty = true
+    <span class="code-keyword">return</span> t
+}</code></pre>
+      </div>
+      <div class="translation-english">
+        <span class="translation-label">PLAIN ENGLISH</span>
+        <div class="translation-lines">
+          <p>Add method on Store. Takes a description string, returns the new Task.</p>
+          <p>Start with ID = 1 as a candidate.</p>
+          <p>Loop through all existing tasks.</p>
+          <p>If any task has an ID equal to or higher than our candidate, bump our candidate up by 1.</p>
+          <p>End of loop — now "id" is guaranteed to be higher than all existing IDs.</p>
+          <p>Build a new Task object with all its fields filled in.</p>
+          <p>Use the ID we just calculated.</p>
+          <p>Use the description the user typed.</p>
+          <p>Set the creation time to right now.</p>
+          <p>New tasks start as not complete.</p>
+          <p>End of task creation.</p>
+          <p>Add this new task to our in-memory list.</p>
+          <p>Set dirty = true: this tells Close() that it needs to write to disk.</p>
+          <p>Return the new task so the caller can print its ID.</p>
+          <p>End of Add().</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ MODULE 4 -->
+    <div class="quiz-container animate-in" id="quiz-m4">
+      <div class="quiz-question-block"
+           data-correct="opt-dirty"
+           data-explanation-right="Yes! The dirty flag is the signal. If dirty is false, Close() skips writing — no unnecessary disk I/O. If it is true, there are pending changes that need to be persisted."
+           data-explanation-wrong="Not quite. The Store loads everything into memory and works there. Think about how Close() decides whether to write back to disk.">
+        <span class="quiz-q-label">Quiz — Module 4</span>
+        <h3 class="quiz-question">A user runs "tasks list" (read-only — no changes made). The app opens the file, reads all tasks, and closes. Does Close() write anything to disk?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="opt-always" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Yes, Close() always rewrites the whole CSV file to be safe</span>
+          </button>
+          <button class="quiz-option" data-value="opt-dirty" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>No — dirty is still false, so Close() skips the write</span>
+          </button>
+          <button class="quiz-option" data-value="opt-append" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It appends a read log entry to the CSV</span>
+          </button>
+          <button class="quiz-option" data-value="opt-lock" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>It writes a lock file to prevent others from reading while it is open</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+      <div class="quiz-actions">
+        <button class="btn" onclick="checkQuiz('quiz-m4')">Check Answer</button>
+        <button class="btn btn-ghost" onclick="resetQuiz('quiz-m4')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODULE 5: PUTTING IT ALL TOGETHER ===== -->
+<section class="module" id="module-5">
+  <div class="module-content">
+    <div class="module-number">05</div>
+    <h1 class="module-title">The whole picture</h1>
+    <p class="module-subtitle">You have seen every part. Now let's step back and see how they form a complete, reliable system.</p>
+
+    <h2 class="screen-heading animate-in">The patterns worth knowing</h2>
+    <div class="cards-grid animate-in">
+      <div class="card">
+        <span class="card-icon">🗂️</span>
+        <div class="card-title">Layered Architecture</div>
+        <div class="card-desc">Commands (cmd/) never touch the CSV directly. They always go through the Store. This means you can change <em>how</em> data is stored (e.g., switch from CSV to SQLite) without rewriting any commands.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">🏁</span>
+        <div class="card-title">Dirty Flag Pattern</div>
+        <div class="card-desc">Track whether anything changed. Only write to disk if dirty=true. Saves unnecessary I/O on read-only commands like "list". A pattern you can reuse in any data-persistence feature.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">🔒</span>
+        <div class="card-title">Exclusive File Locking</div>
+        <div class="card-desc">Use flock to serialize concurrent access to a shared file. Critical any time multiple processes might write to the same resource. Ask AI: "add an exclusive flock to the file access."</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">⏩</span>
+        <div class="card-title">Defer for Cleanup</div>
+        <div class="card-desc">Schedule cleanup (close/unlock) with defer immediately after opening. It runs no matter how the function exits — even on error. Never forget to clean up a resource again.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-aha animate-in">
+      <span class="callout-icon">🎓</span>
+      <div class="callout-body">
+        <strong>The vocabulary you now own</strong>
+        <p>You can tell AI: "use a layered architecture with a dedicated data store," "add a dirty flag so we only write when necessary," "use defer for file cleanup," "add flock for safe concurrent access." These are precise, professional instructions — not hand-wavy guesses.</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading animate-in">Extending this codebase — what to change where</h2>
+    <div class="steps animate-in">
+      <div class="step-card">
+        <div class="step-num">A</div>
+        <div class="step-text"><strong>Add a new field to tasks (e.g., priority, due date)</strong><span>1. Update the Task struct in store.go. 2. Update load() and save() to handle the new CSV column. 3. Update list.go to display it.</span></div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">B</div>
+        <div class="step-text"><strong>Add a new command (e.g., "tasks edit")</strong><span>1. Create cmd/edit.go — copy the pattern from done.go. 2. Register it with rootCmd.AddCommand(editCmd) in init(). 3. Add Store.Update() in store.go.</span></div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">C</div>
+        <div class="step-text"><strong>Switch from CSV to a database</strong><span>Only store.go needs to change. The cmd/ files call the same Store interface. This is the payoff of the layered architecture.</span></div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">D</div>
+        <div class="step-text"><strong>Change the default file location</strong><span>Only root.go resolveFile() needs to change. One function, one responsibility.</span></div>
+      </div>
+    </div>
+
+    <!-- FINAL QUIZ -->
+    <h2 class="screen-heading animate-in">Final challenge</h2>
+    <div class="quiz-container animate-in" id="quiz-m5">
+      <div class="quiz-question-block"
+           data-correct="opt-store-cmd"
+           data-explanation-right="Spot on! Tags are part of the task data (store.go needs updating — Task struct + CSV columns), and the add command needs a new flag to accept them. You would NOT touch list.go unless you also want to display the tags."
+           data-explanation-wrong="Not quite. Think about what a tag is — it is data on the task itself — and how you would pass it in from the command line.">
+        <span class="quiz-q-label">Scenario — Module 5</span>
+        <h3 class="quiz-question">You want to add tagging: "tasks add --tag work 'Fix the bug'". Tags are stored with the task and shown in the list. Which files need to change?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="opt-store-only" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Only store.go — the data layer handles everything</span>
+          </button>
+          <button class="quiz-option" data-value="opt-store-cmd" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>store.go (Task struct + CSV columns) AND cmd/add.go (new --tag flag) AND cmd/list.go (display tags)</span>
+          </button>
+          <button class="quiz-option" data-value="opt-root" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>root.go — it handles all flags for all commands</span>
+          </button>
+          <button class="quiz-option" data-value="opt-main" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>main.go — it is the entry point so all changes start there</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+      <div class="quiz-question-block"
+           data-correct="opt-nosave"
+           data-explanation-right="Correct! The Store loads all tasks into memory on Open(), so List() just returns from that in-memory slice. No file access needed at query time. The file is only read once at startup."
+           data-explanation-wrong="Think about when the CSV file is actually read. The Store has an in-memory list (s.tasks). When does List() access the file vs memory?">
+        <h3 class="quiz-question">A user says "tasks list" feels slow when the CSV has 10,000 tasks. Where is the bottleneck — and what would you suggest?</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" data-value="opt-nosave" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The slow part is reading the entire CSV on every Open() — switching to a database with indexed queries would help</span>
+          </button>
+          <button class="quiz-option" data-value="opt-cobra" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>Cobra is doing too many regex matches on the command string</span>
+          </button>
+          <button class="quiz-option" data-value="opt-print" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>The fmt.Fprintf printing loop is the bottleneck</span>
+          </button>
+          <button class="quiz-option" data-value="opt-lock2" onclick="selectOption(this)">
+            <div class="quiz-option-radio"></div>
+            <span>flock is taking too long because the file is large</span>
+          </button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+      <div class="quiz-actions">
+        <button class="btn" onclick="checkQuiz('quiz-m5')">Check Answers</button>
+        <button class="btn btn-ghost" onclick="resetQuiz('quiz-m5')">Try Again</button>
+      </div>
+    </div>
+
+    <div class="callout callout-aha animate-in" style="margin-top:var(--space-10);">
+      <span class="callout-icon">🚀</span>
+      <div class="callout-body">
+        <strong>You built something worth understanding</strong>
+        <p>This codebase has real engineering decisions in it: file locking, layered architecture, the dirty flag pattern, deferred cleanup. These aren't beginner tricks — they're patterns used in production software. You know what they are, why they exist, and when to ask for them.</p>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:var(--space-12) 0 var(--space-6);" class="animate-in">
+      <p style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:700;margin-bottom:var(--space-3);">Course complete 🎉</p>
+      <p style="color:var(--color-text-secondary);font-size:var(--text-base);">You now know this codebase end to end. Go build something great.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── TOOLTIP ENGINE ──
+  const tooltip = document.createElement('div');
+  tooltip.className = 'tooltip-popup';
+  document.body.appendChild(tooltip);
+
+  let tooltipVisible = false;
+
+  function showTooltip(el, text) {
+    tooltip.textContent = text;
+    tooltip.classList.add('show');
+    tooltipVisible = true;
+    positionTooltip(el);
+  }
+
+  function hideTooltip() {
+    tooltip.classList.remove('show');
+    tooltipVisible = false;
+  }
+
+  function positionTooltip(el) {
+    const rect = el.getBoundingClientRect();
+    const tw = tooltip.offsetWidth || 280;
+    const th = tooltip.offsetHeight || 80;
+    let left = rect.left + rect.width / 2 - tw / 2;
+    let top = rect.top - th - 8;
+    if (left < 8) left = 8;
+    if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
+    if (top < 8) top = rect.bottom + 8;
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+  }
+
+  document.querySelectorAll('.term').forEach(el => {
+    const tip = el.dataset.tip;
+    el.addEventListener('mouseenter', () => showTooltip(el, tip));
+    el.addEventListener('mouseleave', hideTooltip);
+    el.addEventListener('focus', () => showTooltip(el, tip));
+    el.addEventListener('blur', hideTooltip);
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (tooltipVisible) hideTooltip(); else showTooltip(el, tip);
+    });
+  });
+  document.addEventListener('click', hideTooltip);
+
+  // ── SCROLL ANIMATION ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+
+  // ── NAV DOTS ──
+  const modules = document.querySelectorAll('.module');
+  const dots = document.querySelectorAll('.nav-dot');
+
+  function scrollToModule(i) {
+    modules[i].scrollIntoView({ behavior: 'smooth' });
+  }
+  window.scrollToModule = scrollToModule;
+
+  let rafId = null;
+  window.addEventListener('scroll', () => {
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      rafId = null;
+      const mid = window.innerHeight / 2;
+      let active = 0;
+      modules.forEach((m, i) => {
+        const rect = m.getBoundingClientRect();
+        if (rect.top <= mid) active = i;
+      });
+      dots.forEach((d, i) => d.classList.toggle('active', i === active));
+    });
+  }, { passive: true });
+
+  // ── QUIZ ENGINE ──
+  window.selectOption = function(btn) {
+    const block = btn.closest('.quiz-question-block');
+    block.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+    btn.classList.add('selected');
+  };
+
+  window.checkQuiz = function(containerId) {
+    const container = document.getElementById(containerId);
+    container.querySelectorAll('.quiz-question-block').forEach(block => {
+      const correct = block.dataset.correct;
+      const selected = block.querySelector('.quiz-option.selected');
+      const feedback = block.querySelector('.quiz-feedback');
+      if (!selected) return;
+      const isRight = selected.dataset.value === correct;
+      block.querySelectorAll('.quiz-option').forEach(o => {
+        o.classList.remove('correct', 'incorrect');
+        if (o.dataset.value === correct) o.classList.add('correct');
+      });
+      if (!isRight) selected.classList.add('incorrect');
+      feedback.textContent = isRight
+        ? '✓ ' + block.dataset.explanationRight
+        : '✗ ' + block.dataset.explanationWrong;
+      feedback.className = 'quiz-feedback show ' + (isRight ? 'success' : 'error');
+    });
+  };
+
+  window.resetQuiz = function(containerId) {
+    const container = document.getElementById(containerId);
+    container.querySelectorAll('.quiz-option').forEach(o => {
+      o.classList.remove('selected', 'correct', 'incorrect');
+    });
+    container.querySelectorAll('.quiz-feedback').forEach(f => {
+      f.className = 'quiz-feedback';
+      f.textContent = '';
+    });
+  };
+
+  // ── GROUP CHAT ENGINE ──
+  const chatState = {};
+
+  function initChat(id) {
+    const msgs = document.querySelectorAll(`#${id}-messages .chat-message`);
+    chatState[id] = { current: 0, total: msgs.length, msgs, playing: false };
+    updateChatProgress(id);
+  }
+
+  function updateChatProgress(id) {
+    const el = document.getElementById(`${id}-progress`);
+    if (el) el.textContent = chatState[id].current + ' / ' + chatState[id].total;
+  }
+
+  function showChatMsg(id, idx) {
+    const state = chatState[id];
+    const msg = state.msgs[idx];
+    if (!msg) return;
+    const avatar = document.getElementById(`${id}-typing-avatar`);
+    const typing = document.getElementById(`${id}-typing`);
+    // show typing indicator with sender's color
+    const senderEl = msg.querySelector('.chat-sender');
+    if (avatar && senderEl) {
+      avatar.textContent = senderEl.textContent.slice(0, 2);
+      avatar.style.background = senderEl.style.color;
+    }
+    if (typing) typing.style.display = 'flex';
+    setTimeout(() => {
+      if (typing) typing.style.display = 'none';
+      msg.style.display = 'flex';
+      msg.style.opacity = '0';
+      msg.style.transform = 'translateY(10px)';
+      requestAnimationFrame(() => {
+        msg.style.transition = 'opacity 0.3s, transform 0.3s';
+        msg.style.opacity = '1';
+        msg.style.transform = 'translateY(0)';
+      });
+      state.current++;
+      updateChatProgress(id);
+    }, 700);
+  }
+
+  window.chatNext = function(id) {
+    const state = chatState[id];
+    if (state.current >= state.total) return;
+    showChatMsg(id, state.current);
+  };
+
+  window.chatAll = function(id) {
+    const state = chatState[id];
+    if (state.playing) return;
+    state.playing = true;
+    function playNext() {
+      if (state.current >= state.total) { state.playing = false; return; }
+      showChatMsg(id, state.current);
+      setTimeout(playNext, 1200);
+    }
+    playNext();
+  };
+
+  window.chatReset = function(id) {
+    const state = chatState[id];
+    state.current = 0;
+    state.playing = false;
+    state.msgs.forEach(m => { m.style.display = 'none'; });
+    const typing = document.getElementById(`${id}-typing`);
+    if (typing) typing.style.display = 'none';
+    updateChatProgress(id);
+  };
+
+  document.querySelectorAll('.chat-window').forEach(w => initChat(w.id));
+
+  // ── FLOW ANIMATION ENGINE ──
+  const flowState = {};
+
+  function initFlow(el) {
+    const id = el.id;
+    let steps = [];
+    try { steps = JSON.parse(el.dataset.steps); } catch(e) { console.warn('Flow parse error', id, e); }
+    flowState[id] = { current: 0, steps, el };
+    const prog = document.getElementById(`${id}-progress`);
+    if (prog) prog.textContent = '0 / ' + steps.length;
+  }
+
+  window.flowNext = function(id) {
+    const state = flowState[id];
+    if (!state || state.current >= state.steps.length) return;
+    const step = state.steps[state.current];
+    // clear all active
+    state.el.querySelectorAll('.flow-actor').forEach(a => a.classList.remove('active'));
+    // activate current actor
+    const actor = document.getElementById(step.highlight);
+    if (actor) actor.classList.add('active');
+    // update label
+    const label = document.getElementById(`${id}-label`);
+    if (label) label.textContent = 'Step ' + (state.current + 1) + ': ' + step.label;
+    state.current++;
+    const prog = document.getElementById(`${id}-progress`);
+    if (prog) prog.textContent = state.current + ' / ' + state.steps.length;
+  };
+
+  window.flowReset = function(id) {
+    const state = flowState[id];
+    if (!state) return;
+    state.current = 0;
+    state.el.querySelectorAll('.flow-actor').forEach(a => a.classList.remove('active'));
+    const label = document.getElementById(`${id}-label`);
+    if (label) label.textContent = 'Click "Next Step" to trace the flow';
+    const prog = document.getElementById(`${id}-progress`);
+    if (prog) prog.textContent = '0 / ' + state.steps.length;
+  };
+
+  document.querySelectorAll('.flow-animation').forEach(el => initFlow(el));
+
+  // ── ARCH DIAGRAM ──
+  window.showArchDesc = function(key) {
+    document.querySelectorAll('.arch-desc').forEach(d => d.classList.remove('show'));
+    const el = document.getElementById('arch-desc-' + key);
+    if (el) el.classList.add('show');
+  };
+
+})();
+</script>
+</body>
+</html>

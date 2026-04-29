@@ -4,7 +4,11 @@
   <img src="assets/ttt-350.png" alt="terminal-task-tracker" width="300" style="max-width: 100%;">
 </div>
 
-> **Interactive Walkthrough:** A digestible breakdown of how Terminal Task Tracker works — [Take a Look!](https://code-qtzl.github.io/Terminal-Task-Tracker/)
+> [!IMPORTANT]
+> **New to Go (Golang) or just want to understand how this project works?**
+> This repo assumes you're comfortable running commands in a terminal. If you'd like a plain-English walkthrough of how the code is structured before diving in, start here:
+>
+> [Interactive Walkthrough — Terminal Task Tracker](https://code-qtzl.github.io/Terminal-Task-Tracker/)
 
 A small Go CLI for managing a todo list from the terminal. Tasks are persisted to a CSV file with an exclusive `flock` lock so concurrent invocations don't corrupt the data.
 

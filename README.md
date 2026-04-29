@@ -4,6 +4,8 @@
   <img src="assets/ttt-350.png" alt="terminal-task-tracker" width="300" style="max-width: 100%;">
 </div>
 
+> **Interactive Walkthrough:** A digestible breakdown of how Terminal Task Tracker works — [Take a Look!](https://code-qtzl.github.io/Terminal-Task-Tracker/)
+
 A small Go CLI for managing a todo list from the terminal. Tasks are persisted to a CSV file with an exclusive `flock` lock so concurrent invocations don't corrupt the data.
 
 ## Pre-requisites

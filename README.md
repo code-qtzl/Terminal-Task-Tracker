@@ -1,4 +1,4 @@
-# tasks
+# Terminal Task Tracker
 
 A small Go CLI for managing a todo list from the terminal. Tasks are persisted to a CSV file with an exclusive `flock` lock so concurrent invocations don't corrupt the data.
 
@@ -26,7 +26,7 @@ The file is created automatically on first use.
 Add a new task. The description must be quoted if it contains spaces.
 
 ```sh
-$ tasks add "Tidy my desk"
+$ tasks add "Build Go Project"
 Added task 1
 ```
 
@@ -37,8 +37,8 @@ List tasks. By default, only uncompleted tasks are shown. `ls` is a shorthand al
 ```sh
 $ tasks ls
 ID    Task                                                Created
-1     Tidy my desk                                        a minute ago
-3     Change my keyboard mapping to use escape/control    a few seconds ago
+1     Build Go Project                                    a minute ago
+3     Review PR for open-source project                   a few seconds ago
 ```
 
 Pass `-a` / `--all` to include completed tasks (adds a `Done` column):
@@ -46,9 +46,9 @@ Pass `-a` / `--all` to include completed tasks (adds a `Done` column):
 ```sh
 $ tasks ls -a
 ID    Task                                                Created          Done
-1     Tidy my desk                                        2 minutes ago    false
+1     Build Go Project                                    2 minutes ago    false
 2     Write up documentation for new project feature      a minute ago     true
-3     Change my keyboard mapping to use escape/control    a minute ago     false
+3     Review PR for open-source project                   a minute ago     false
 ```
 
 ### `tasks done <id>`
@@ -80,8 +80,8 @@ Deleted task 1
 ```
 ID,Description,CreatedAt,IsComplete
 1,My new task,2024-07-27T16:45:19-05:00,true
-2,Finish this video,2024-07-27T16:45:26-05:00,true
-3,Find a video editor,2024-07-27T16:45:31-05:00,false
+2,Finish this go project,2024-07-27T16:45:26-05:00,true
+3,Find a open-source project to contribute to,2024-07-27T16:45:31-05:00,false
 ```
 
 Timestamps are RFC3339.

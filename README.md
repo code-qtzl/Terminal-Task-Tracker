@@ -10,6 +10,7 @@
 >
 > [Interactive Walkthrough — Terminal Task Tracker](https://code-qtzl.github.io/Terminal-Task-Tracker/)
 
+\
 A small Go CLI for managing a todo list from the terminal. Tasks are persisted to a CSV file with an exclusive `flock` lock so concurrent invocations don't corrupt the data.
 
 ## Pre-requisites
@@ -27,7 +28,7 @@ cd Terminal-Task-Tracker
 go install .
 ```
 
-This installs tasks to $(go env GOBIN) if set, otherwise $(go env GOPATH)/bin. Make sure that directory is on your $PATH so you can run tasks from anywhere.
+This installs the `tasks` binary to `$(go env GOBIN)` if set, otherwise `$(go env GOPATH)/bin`. Make sure that directory is on your `$PATH` so you can run `tasks` from anywhere.
 
 If you'd prefer to build a local binary without installing it globally:
 

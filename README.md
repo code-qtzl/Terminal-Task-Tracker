@@ -13,7 +13,7 @@
 \
 A small Go CLI for managing a todo list from the terminal. Tasks are persisted to a CSV file with an exclusive `flock` lock so concurrent invocations don't corrupt the data.
 
-## Pre-requisites
+## Prerequisites
 
 - A Unix-like OS (macOS, Linux, BSD).
 - Go 1.25 or newer

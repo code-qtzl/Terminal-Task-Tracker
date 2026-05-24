@@ -11,7 +11,7 @@
 > [Interactive Walkthrough — Terminal Task Tracker](https://code-qtzl.github.io/Terminal-Task-Tracker/)
 
 \
-A small Go CLI for managing a todo list from the terminal. Tasks are persisted to a CSV file with an exclusive `flock` lock so concurrent invocations don't corrupt the data.
+A small Go CLI for managing a todo list from the terminal. Tasks are persisted to a CSV file with an exclusive `flock` lock so concurrent invocations don't corrupt the data.In other words,tasks are safely saved to a CSV file using a locking mechanism that prevents multiple simultaneous users from overwriting or corrupting the data.
 
 ## Prerequisites
 

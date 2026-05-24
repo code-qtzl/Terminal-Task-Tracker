@@ -916,8 +916,8 @@ p:last-child { margin-bottom: 0; }
     <div class="callout callout-aha animate-in">
       <span class="callout-icon">🎯</span>
       <div class="callout-body">
-        <strong>Why this matters for directing AI</strong>
-        <p>When you ask AI to "add a priority field to tasks," it needs to touch the Store (where tasks are defined and saved) AND the list command (which displays them). Knowing the flow helps you give better instructions.</p>
+        <strong>Why this matters for extending the CLI</strong>
+        <p>When you add a feature like a <description> field, you need to touch the Store (where tasks are defined and saved) AND the list command (which displays them). Knowing the flow helps you make focused, correct changes.</p>
       </div>
     </div>
   </div>
@@ -1018,7 +1018,7 @@ p:last-child { margin-bottom: 0; }
     </div>
 
     <h2 class="screen-heading animate-in">The key architectural pattern: one job each</h2>
-    <p class="animate-in">Notice how each <span class="term" data-tip="A file in a codebase that groups related code together — like a chapter in a book. In Go, files belong to a 'package' which is a namespace for that code.">file</span> does exactly one thing. This is called the <span class="term" data-tip="Single Responsibility Principle — a design rule that says each part of code should have exactly one reason to change. Makes code easier to understand and modify.">Single Responsibility Principle</span>. When you ask AI to add a feature, you can be precise: "update only the Store" or "add a new command file in cmd/".</p>
+    <p class="animate-in">Notice how each <span class="term" data-tip="A file in a codebase that groups related code together — like a chapter in a book. In Go, files belong to a 'package' which is a namespace for that code.">file</span> does exactly one thing. This is called the <span class="term" data-tip="Single Responsibility Principle — a design rule that says each part of code should have exactly one reason to change. Makes code easier to understand and modify.">Single Responsibility Principle</span>. When you add a feature, you can be precise: "update only the Store" or "add a new command file in cmd/".</p>
 
     <!-- GROUP CHAT ANIMATION -->
     <h2 class="screen-heading animate-in">How they talk to each other</h2>
@@ -1179,7 +1179,7 @@ p:last-child { margin-bottom: 0; }
       <span class="callout-icon">⏩</span>
       <div class="callout-body">
         <strong>"defer" is a safety net</strong>
-        <p><span class="term" data-tip="In Go, 'defer' schedules a function to run right before the current function returns — no matter how or why it returns. Great for cleanup tasks like closing files.">defer</span> s.Close() means "close and save the file when this function finishes — even if there's an error." Without it, you'd have to remember to close the file in every possible exit path. Defer handles it automatically. You can tell AI: "use defer for any cleanup at the end of a function."</p>
+        <p><span class="term" data-tip="In Go, 'defer' schedules a function to run right before the current function returns — no matter how or why it returns. Great for cleanup tasks like closing files.">defer</span> s.Close() means "close and save the file when this function finishes — even if there's an error." Without it, you'd have to remember to close the file in every possible exit path. Defer handles it automatically. It is a solid default rule for cleanup at the end of a function.</p>
       </div>
     </div>
 
@@ -1392,7 +1392,7 @@ p:last-child { margin-bottom: 0; }
       <span class="callout-icon">🔒</span>
       <div class="callout-body">
         <strong>flock prevents data corruption</strong>
-        <p>Imagine two terminal windows both running <code>tasks add</code> at the same moment. Without a lock, both would read the file, both add a task, and both write — one overwriting the other. <span class="term" data-tip="flock is a Unix system call that places an advisory lock on a file. LOCK_EX means exclusive — only one process can hold this lock at a time. Other processes that try to lock it will wait.">flock</span> makes the second process wait until the first is done. Same pattern you would use with any shared resource in AI-built apps.</p>
+        <p>Imagine two terminal windows both running <code>tasks add</code> at the same moment. Without a lock, both would read the file, both add a task, and both write — one overwriting the other. <span class="term" data-tip="flock is a Unix system call that places an advisory lock on a file. LOCK_EX means exclusive — only one process can hold this lock at a time. Other processes that try to lock it will wait.">flock</span> makes the second process wait until the first is done. This is the same pattern used in CLI tools and backend services whenever a resource is shared.</p>
       </div>
     </div>
 
@@ -1498,7 +1498,7 @@ p:last-child { margin-bottom: 0; }
       <div class="card">
         <span class="card-icon">🔒</span>
         <div class="card-title">Exclusive File Locking</div>
-        <div class="card-desc">Use flock to serialize concurrent access to a shared file. Critical any time multiple processes might write to the same resource. Ask AI: "add an exclusive flock to the file access."</div>
+        <div class="card-desc">Use flock to serialize concurrent access to a shared file. Critical any time multiple processes might write to the same resource. In this project, that lock is what keeps your CSV data safe.</div>
       </div>
       <div class="card">
         <span class="card-icon">⏩</span>
@@ -1511,7 +1511,7 @@ p:last-child { margin-bottom: 0; }
       <span class="callout-icon">🎓</span>
       <div class="callout-body">
         <strong>The vocabulary you now own</strong>
-        <p>You can tell AI: "use a layered architecture with a dedicated data store," "add a dirty flag so we only write when necessary," "use defer for file cleanup," "add flock for safe concurrent access." These are precise, professional instructions — not hand-wavy guesses.</p>
+        <p>You can now describe changes precisely: "use a layered architecture with a dedicated data store," "add a dirty flag so we only write when necessary," "use defer for file cleanup," and "add flock for safe concurrent access." These are clear decisions, not hand-wavy guesses.</p>
       </div>
     </div>
 
@@ -1599,7 +1599,7 @@ p:last-child { margin-bottom: 0; }
       <span class="callout-icon">🚀</span>
       <div class="callout-body">
         <strong>You built something worth understanding</strong>
-        <p>This codebase has real engineering decisions in it: file locking, layered architecture, the dirty flag pattern, deferred cleanup. These aren't beginner tricks — they're patterns used in production software. You know what they are, why they exist, and when to ask for them.</p>
+        <p>This codebase has real decision making in it: file locking, layered architecture, the dirty flag pattern, deferred cleanup. These aren't beginner tricks — they're patterns used in production software. You know what they are, why they exist, and when to ask for them.</p>
       </div>
     </div>
 
